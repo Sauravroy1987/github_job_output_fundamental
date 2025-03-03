@@ -8,7 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Cache dependencies #Cache step has to add before the target caching step
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm #Cache this .npm folder after execution of below step 'npm ci'. in .npm, external dependencies are stored
+          key: dependencies-node-modules-${{ hashFiles('**/package-lock.json') }}
+          #variable name to retrieve the cache depencenies, used in below jobs
+          #hashFiles() generates a unique value, package-lock.json contains dependencies list. If dependency change, value will be change
+          #Once dependency changes, contain of 'package-lock.json' will change. key value will be change. Old cache will remove and new dependency cache stored
       - name: Install dependencies
         run: npm ci
       - name: Lint code
@@ -24,7 +32,12 @@ jobs:
       #steps.<ID from job step>.outputs.<Name of the variable>
     steps:
       - name: Get code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Cache dependencies #test job cache will used here
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm #Cache this .npm folder after execution of below step 'npm ci'. in .npm, external dependencies are stored
+          key: dependencies-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
       - name: Build website
