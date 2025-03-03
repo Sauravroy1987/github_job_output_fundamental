@@ -32,8 +32,8 @@ jobs:
       - name: Publish JS filename
         id: publish_output
         run:
-          echo "output_value=example.sh" >> $GITHUB_ENV
-          #find dist/assets/*.js -type f -execdir echo '::set-output name=output_value::{}' ';' #Retrieve file name from dist/assets/*.js
+          #echo "output_value=example.sh" >> $GITHUB_ENV
+          find dist/assets/*.js -type f -execdir sh -c 'echo output_value={} >> $GITHUB_OUTPUT' \; #Retrieve file name from dist/assets/*.js
           #script-file variable name from outputs section
           #GITHUB_OUTPUT is keyword, to write the output value to a file
       - name: Upload Artifacts
@@ -58,7 +58,7 @@ jobs:
         run: ls #Display list of downloaded folder, files
       - name: Output Filename contents
         run: #Read the output from above job
-          echo "{{ needs.build.outputs.script-file }}" #needs.<Job Name>.outputs.<Output Variable Name>
+          echo "${{ needs.build.outputs.script-file }}" #needs.<Job Name>.outputs.<Output Variable Name>
           #needs and outputs are keywords
       - name: Deploy
         run: echo "Deploying..."
