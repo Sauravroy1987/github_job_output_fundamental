@@ -18,6 +18,10 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    outputs: #Output of this job
+      script-file: ${{ steps.publish_output.outputs.output_value }}
+      #Name of output variable, used by other job
+      #steps.<ID from job step>.outputs.<Name of the variable>
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -25,9 +29,35 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+      - name: Publish JS filename
+        id: publish_output
+        run:
+          find dist/assets/*.js -type f -execdir echo 'output_value={}' >> $GITHUB_OUTPUT';' #Retrieve file name from dist/assets/*.js
+          #script-file variable name from outputs section
+          #GITHUB_OUTPUT is keyword, to write the output value to a file
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4 #Search in Google, 'Github actions upload artifact'
+        with:
+          name: dist-files #Name of artifacts, to reference update artifacts
+          path:
+            | # List of files/folder name from application code, we want to store as Artifacts
+            dist
+            package.json
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Get build artifacts
+        uses:
+          actions/download-artifact@v4 #Download the files/folders from above job in Deploy job
+          # It's unzip the folder also
+        with:
+          name: dist-files #Name of the artifacts from above job
+      - name: Output Contents
+        run: ls #Display list of downloaded folder, files
+      - name: Output Filename contents
+        run: #Read the output from above job
+          echo "{{ needs.build.outputs.script-file }}" #needs.<Job Name>.outputs.<Output Variable Name>
+          #needs and outputs are keywords
       - name: Deploy
         run: echo "Deploying..."
