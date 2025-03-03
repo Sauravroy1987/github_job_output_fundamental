@@ -32,7 +32,7 @@ jobs:
       - name: Publish JS filename
         id: publish_output
         run:
-          find dist/assets/*.js -type f -execdir sh -c 'echo output_value={} >> $GITHUB_OUTPUT' \; #Retrieve file name from dist/assets/*.js
+          find dist/assets/*.js -type f -execdir sh -c 'echo output_value={} >> $GITHUB_OUTPUT' ';' #Retrieve file name from dist/assets/*.js
           #script-file variable name from outputs section
           #GITHUB_OUTPUT is keyword, to write the output value to a file
       - name: Upload Artifacts
